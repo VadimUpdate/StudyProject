@@ -38,3 +38,8 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+node_modules/
+package-lock.json
+dist/
+.env
