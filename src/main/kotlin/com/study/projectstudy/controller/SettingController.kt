@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.*
 class SettingController(private val settingService: SettingService) {
 
     @GetMapping
-    fun getSetting(): Setting? {
-        return settingService.getSettingByValue(0)
+    fun getSetting(): ResponseEntity<Setting> {
+        val setting = settingService.getSettingByValue(0)
+        return setting?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
     }
+
 
     @GetMapping("/{id}")
     fun getSettingById(@PathVariable id: Long): Setting? {

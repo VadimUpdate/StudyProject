@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository
 
 
 interface SettingRepository : JpaRepository<Setting, Long> {
-    fun findByValue(value: Int): Setting?
+    fun findFirstByValue(value: Int): Setting?
 }

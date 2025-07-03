@@ -44,6 +44,7 @@ body {
 }
 
 .save-btn {
+  width: 300px;
   padding: 10px 10px;
   background-color: #007bff;
   color: #fff;
@@ -57,7 +58,7 @@ body {
 
 .save-btn:hover {
   background-color: #0056b3;
-  scale: 1.2;
+  scale: 1.05;
 }
 
 .get-btn {
@@ -65,6 +66,7 @@ body {
   background-color: #007bff;
   color: #fff;
   border: none;
+  width: 300px;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
@@ -74,7 +76,7 @@ body {
 
 .get-btn:hover {
   background-color: #0056b3;
-  scale: 1.1;
+  scale: 1.05;
 }
 
 .get-h3 {
@@ -90,6 +92,7 @@ body {
 }
 
 .put-btn {
+  width: 300px;
   padding: 10px 10px;
   background-color: #007bff;
   color: #fff;
@@ -103,5 +106,5 @@ body {
 
 .put-btn:hover {
   background-color: #0056b3;
-  scale: 1.1;
+  scale: 1.05;
 }

@@ -125,7 +125,7 @@ function App() {
                 </button>
                 {fetchedSetting && (
                     <div>
-                        <h3 class="get-h3">Полученные данные:</h3>
+                        <h3 className="get-h3">Полученные данные:</h3>
                         <p>{fetchedSetting}</p>
 
                     </div>

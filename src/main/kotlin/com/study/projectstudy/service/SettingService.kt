@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 class SettingService(private val settingRepository: SettingRepository) {
 
     fun getSettingByValue(value: Int): Setting? {
-        return settingRepository.findByValue(value)
+        return settingRepository.findFirstByValue(value)
     }
 
     fun getSettingById(id: Long): Setting? {
