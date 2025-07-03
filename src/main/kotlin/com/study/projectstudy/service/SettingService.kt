@@ -18,5 +18,11 @@ class SettingService(private val settingRepository: SettingRepository) {
     fun save(setting: Setting): Setting {
         return settingRepository.save(setting)
     }
+
+    fun updateSettingById(id: Long, newValue: Int): Setting? {
+        val setting = settingRepository.findById(id).orElse(null) ?: return null
+        setting.value = newValue
+        return settingRepository.save(setting)
+    }
 }
 

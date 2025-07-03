@@ -5,7 +5,8 @@ function App() {
     const [buttonText, setButtonText] = useState("Сохранить");
     const [fetchedSetting, setFetchedSetting] = useState(null);
     const [id, setId] = useState("");
-
+    const [updateId, setUpdateId] = useState('');
+    const [updateValue, setUpdateValue] = useState('');
     const handleChange = (e) => {
         setSetting({ ...setting, value: e.target.value });
     };
@@ -67,11 +68,33 @@ function App() {
         }
     };
 
+    const handleUpdate = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/settings/${updateId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ value: parseInt(updateValue) }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Ошибка при обновлении");
+            }
+
+            const data = await response.json();
+            console.log("Обновлено:", data);
+            alert("Успешно обновлено");
+        } catch (error) {
+            console.error("Ошибка:", error);
+            alert("Ошибка при обновлении");
+        }
+    };
+
 
     return (
         <div>
             <div className="container">
-
                 <h1 className="check-h1">Проверка запросов</h1>
 
                 <input
@@ -104,8 +127,26 @@ function App() {
                     <div>
                         <h3 class="get-h3">Полученные данные:</h3>
                         <p>{fetchedSetting}</p>
+
                     </div>
                 )}
+
+                <h3 className="put-h3">Изменить значение по ID</h3>
+                <input
+                    type="text"
+                    placeholder="ID"
+                    value={updateId}
+                    onChange={(e) => setUpdateId(e.target.value)}
+                    className="input mb-2"
+                />
+                <input
+                    type="text"
+                    placeholder="Новое значение"
+                    value={updateValue}
+                    onChange={(e) => setUpdateValue(e.target.value)}
+                    className="input"
+                />
+                <button onClick={handleUpdate} className="put-btn">Обновить</button>
             </div>
         </div>
     );

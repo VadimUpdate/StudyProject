@@ -2,6 +2,7 @@ package com.study.projectstudy.controller
 
 import com.study.projectstudy.Setting
 import com.study.projectstudy.service.SettingService
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -21,5 +22,11 @@ class SettingController(private val settingService: SettingService) {
     @PostMapping
     fun updateSetting(@RequestBody setting: Setting): Setting {
         return settingService.save(setting)
+    }
+
+    @PutMapping("/{id}")
+    fun updateSetting(@PathVariable id: Long, @RequestBody newValue: Map<String, Int>): ResponseEntity<Setting> {
+        val updated = settingService.updateSettingById(id, newValue["value"] ?: return ResponseEntity.badRequest().build())
+        return updated?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
     }
 }

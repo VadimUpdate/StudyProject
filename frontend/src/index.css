@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -21,7 +25,7 @@ body {
   justify-content: center;
   flex-direction: column;
   width: 400px;
-  height: 350px;
+  height: 500px;
 }
 
 
@@ -79,4 +83,25 @@ body {
 
 .check-h1 {
   margin: 10px 0px 30px 0px;
+}
+
+.put-h3 {
+  margin-top: 20px;
+}
+
+.put-btn {
+  padding: 10px 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: ease, 20ms;
+}
+
+.put-btn:hover {
+  background-color: #0056b3;
+  scale: 1.1;
 }
