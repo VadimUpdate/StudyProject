@@ -8,12 +8,15 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/settings")
 class SettingController(private val settingService: SettingService) {
 
-
     @GetMapping
     fun getSetting(): Setting? {
-        return settingService.getSettingByKey("site_title")
+        return settingService.getSettingByValue(0)
     }
 
+    @GetMapping("/{id}")
+    fun getSettingById(@PathVariable id: Long): Setting? {
+        return settingService.getSettingById(id)
+    }
 
     @PostMapping
     fun updateSetting(@RequestBody setting: Setting): Setting {

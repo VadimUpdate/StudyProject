@@ -7,16 +7,16 @@ import org.springframework.stereotype.Service
 @Service
 class SettingService(private val settingRepository: SettingRepository) {
 
-    fun getSettingByKey(key: String): Setting? {
-        return settingRepository.findByKey(key)
+    fun getSettingByValue(value: Int): Setting? {
+        return settingRepository.findByValue(value)
+    }
+
+    fun getSettingById(id: Long): Setting? {
+        return settingRepository.findById(id).orElse(null)
     }
 
     fun save(setting: Setting): Setting {
         return settingRepository.save(setting)
-    }
-
-    fun getAllSettings(): List<Setting> {
-        return settingRepository.findAll()
     }
 }
 

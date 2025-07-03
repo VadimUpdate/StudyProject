@@ -21,7 +21,7 @@ body {
   justify-content: center;
   flex-direction: column;
   width: 400px;
-  height: 300px;
+  height: 350px;
 }
 
 
@@ -29,27 +29,25 @@ body {
   font-size: 28px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 10px;
 }
 
 .input {
-  width: 80%;
+  width: 90%;
   padding: 8px;
-  margin-bottom: 15px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
 .save-btn {
-  padding: 10px 20px;
+  padding: 10px 10px;
   background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
-  margin-top: 10px;
+  margin: 10px 0px 10px 0px;
   transition: ease, 20ms;
 }
 
@@ -58,19 +56,27 @@ body {
   scale: 1.2;
 }
 
-get-result-btn {
-  padding: 10px 20px;
+.get-btn {
+  padding: 10px 10px;
   background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 8px;
   transition: ease, 20ms;
 }
 
-get-result-btn {
+.get-btn:hover {
   background-color: #0056b3;
-  scale: 1.2;
+  scale: 1.1;
+}
+
+.get-h3 {
+  margin-top: 20px;
+}
+
+.check-h1 {
+  margin: 10px 0px 30px 0px;
 }
