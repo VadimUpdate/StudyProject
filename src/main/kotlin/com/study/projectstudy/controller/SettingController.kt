@@ -7,28 +7,13 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/settings")
-class SettingController(private val settingService: SettingService) {
+class SettingController(private val service: SettingService) {
 
     @GetMapping
-    fun getSetting(): ResponseEntity<Setting> {
-        val setting = settingService.getSettingByValue(0)
-        return setting?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
-    }
-
-
-    @GetMapping("/{id}")
-    fun getSettingById(@PathVariable id: Long): Setting? {
-        return settingService.getSettingById(id)
-    }
-
-    @PostMapping
-    fun updateSetting(@RequestBody setting: Setting): Setting {
-        return settingService.save(setting)
-    }
+    fun getAll(): List<Setting> = service.getAll()
 
     @PutMapping("/{id}")
-    fun updateSetting(@PathVariable id: Long, @RequestBody newValue: Map<String, Int>): ResponseEntity<Setting> {
-        val updated = settingService.updateSettingById(id, newValue["value"] ?: return ResponseEntity.badRequest().build())
-        return updated?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
+    fun update(@PathVariable id: Long, @RequestBody setting: Setting): Setting {
+        return service.update(setting.copy(id = id))
     }
 }

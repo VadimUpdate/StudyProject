@@ -1,126 +1,110 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 function App() {
-    const [setting, setSetting] = useState({ value: "" });
-    const [buttonText, setButtonText] = useState("Сохранить");
-    const [fetchedSetting, setFetchedSetting] = useState(null);
-    const [id, setId] = useState("");
-    const [updateId, setUpdateId] = useState('');
-    const [updateValue, setUpdateValue] = useState('');
+    const [settings, setSettings] = useState([]);
+    const [originalSettings, setOriginalSettings] = useState([]);
 
-    const handleChange = (e) => {
-        setSetting({ ...setting, value: e.target.value });
+    useEffect(() => {
+        axios.get("/api/settings")
+            .then(response => {
+                const first20 = response.data.slice(0, 20);
+                setSettings(first20);
+                setOriginalSettings(first20);
+            })
+            .catch(error => {
+                console.error("Ошибка при загрузке настроек:", error);
+            });
+    }, []);
+
+    const handleChange = (id, newValue) => {
+        setSettings(prev =>
+            prev.map(s => s.id === id ? { ...s, value: newValue } : s)
+        );
     };
 
-    const handleSave = async () => {
-        try {
-            const response = await fetch("http://localhost:8080/api/settings", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ value: setting.value })
-            });
+    const handleSaveAll = () => {
+        const requests = settings.map(setting =>
+            axios.put(`/api/settings/${setting.id}`, setting)
+        );
 
-            if (!response.ok) throw new Error("Ошибка при сохранении");
-            await response.json();
-            setButtonText("Сохранено");
-            setTimeout(() => setButtonText("Сохранить"), 2000);
-        } catch (error) {
-            console.error("Ошибка:", error);
-        }
+        Promise.all(requests)
+            .then(() => {
+                alert("Все настройки сохранены!");
+                setOriginalSettings(settings);
+            })
+            .catch(error => {
+                console.error("Ошибка при сохранении:", error);
+                alert("Ошибка при сохранении настроек.");
+            });
     };
 
-    const handleGetById = async () => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/settings/${id}`, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            });
-
-            if (!response.ok || response.status === 204) throw new Error("Нет данных для этого ID");
-            const data = await response.json();
-            if (!data) throw new Error("Получены пустые данные");
-            setFetchedSetting(data.value);
-        } catch (error) {
-            console.error("Ошибка:", error);
-        }
-    };
-
-    const handleUpdate = async () => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/settings/${updateId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ value: parseInt(updateValue) })
-            });
-
-            if (!response.ok) throw new Error("Ошибка при обновлении");
-            const data = await response.json();
-            console.log("Обновлено:", data);
-            alert("Успешно обновлено");
-        } catch (error) {
-            console.error("Ошибка:", error);
-            alert("Ошибка при обновлении");
-        }
+    const handleCancel = () => {
+        setSettings(originalSettings);
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-indigo-900 — #6B7280; ">
-            <div className="bg-white p-8 w-[400px] h-[600px] flex flex-col items-center">
-                <h1 className="text-2xl font-bold text-gray-700 mb-6">Проверка запросов</h1>
+        <div className="max-w-4xl mx-auto px-6 py-10 text-sm text-gray-800">
+            <h2 className="text-xl font-semibold mb-6 text-center">Настройки шлюза</h2>
 
-                <input
-                    placeholder="Запишите число"
-                    className="w-[90%] p-2 border border-gray-300 mb-2"
-                    value={setting.value}
-                    onChange={handleChange}
-                />
+            <div className="border border-gray-300 rounded-md overflow-hidden">
+                <table className="w-full table-fixed border-collapse">
+                    <thead className="bg-gray-100">
+                    <tr>
+                        <th className="text-left p-2 w-2/3 border-b border-gray-300">Параметр</th>
+                        <th className="text-left p-2 w-1/3 border-b border-gray-300">Значение</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {settings.map(setting => {
+                        const isBoolean = setting.value === "true" || setting.value === "false";
+                        const booleanValue = setting.value === "true";
+
+                        return (
+                            <tr key={setting.id} className="even:bg-gray-50">
+                                <td className="p-2 border-b border-gray-200">{setting.name}</td>
+                                <td className="p-2 border-b border-gray-200">
+                                    {isBoolean ? (
+                                        <button
+                                            onClick={() =>
+                                                handleChange(setting.id, (!booleanValue).toString())
+                                            }
+                                            className={`px-3 py-1 rounded text-xs font-medium transition ${
+                                                booleanValue
+                                                    ? "bg-green-500 text-white hover:bg-green-600"
+                                                    : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                                            }`}
+                                        >
+                                            {booleanValue ? "Включено" : "Выключено"}
+                                        </button>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            value={setting.value}
+                                            onChange={(e) => handleChange(setting.id, e.target.value)}
+                                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                        />
+                                    )}
+                                </td>
+                            </tr>
+                        );
+                    })}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="flex justify-end gap-4 mt-6">
                 <button
-                    className="w-[300px] p-2 bg-blue-600 text-white hover:bg-blue-900 hover:scale-105 transition"
-                    onClick={handleSave}
+                    onClick={handleCancel}
+                    className="px-4 py-2 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
                 >
-                    {buttonText}
+                    Отменить
                 </button>
-
-                <input
-                    placeholder="Введите ID"
-                    className="w-[90%] p-2 border border-gray-300 mt-2"
-                    value={id}
-                    onChange={(e) => setId(e.target.value)}
-                />
                 <button
-                    className="w-[300px] p-2 mt-2 bg-blue-600 text-white hover:bg-blue-900 hover:scale-105 transition"
-                    onClick={handleGetById}
+                    onClick={handleSaveAll}
+                    className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
                 >
-                    Получить данные по ID
-                </button>
-
-                {fetchedSetting && (
-                    <div className="mt-4">
-                        <h3 className=" font-bold">Полученные данные:</h3>
-                        <p>{fetchedSetting}</p>
-                    </div>
-                )}
-
-                <h3 className="mt-6 font-bold">Изменить значение по ID</h3>
-                <input
-                    type="text"
-                    placeholder="ID"
-                    value={updateId}
-                    onChange={(e) => setUpdateId(e.target.value)}
-                    className="w-[90%] p-2 border border-gray-300 mt-2"
-                />
-                <input
-                    type="text"
-                    placeholder="Новое значение"
-                    value={updateValue}
-                    onChange={(e) => setUpdateValue(e.target.value)}
-                    className="w-[90%] p-2 border border-gray-300 mt-2"
-                />
-                <button
-                    onClick={handleUpdate}
-                    className="w-[300px] p-2 mt-2 bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 transition"
-                >
-                    Обновить
+                    Сохранить
                 </button>
             </div>
         </div>
