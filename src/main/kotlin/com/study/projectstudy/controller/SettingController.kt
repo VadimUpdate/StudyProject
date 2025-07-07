@@ -14,6 +14,6 @@ class SettingController(private val service: SettingService) {
 
     @PutMapping("/{id}")
     fun update(@PathVariable id: Long, @RequestBody setting: Setting): Setting {
-        return service.update(setting.copy(id = id))
+        return service.update(setting)
     }
 }
