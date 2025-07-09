@@ -1,62 +1,72 @@
-    package com.study.projectstudy.security
+package com.study.projectstudy.security
 
-    import jakarta.servlet.FilterChain
-    import jakarta.servlet.ServletException
-    import jakarta.servlet.http.HttpServletRequest
-    import jakarta.servlet.http.HttpServletResponse
-    import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-    import org.springframework.security.core.context.SecurityContextHolder
-    import org.springframework.security.core.userdetails.UserDetailsService
-    import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
-    import org.springframework.stereotype.Component
-    import org.springframework.web.filter.OncePerRequestFilter
-    import java.io.IOException
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletException
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
+import org.springframework.stereotype.Component
+import org.springframework.web.filter.OncePerRequestFilter
+import java.io.IOException
 
+@Component
+class JwtAuthFilter(
+    private val jwtUtil: JwtUtil,
+    private val userDetailsService: UserDetailsService
+) : OncePerRequestFilter() {
 
-    @Component
-    class JwtAuthFilter(
-        private val jwtUtil: JwtUtil,
-        private val userDetailsService: UserDetailsService
-    ) : OncePerRequestFilter() {
+    @Throws(ServletException::class, IOException::class)
+    override fun doFilterInternal(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain
+    ) {
+        val path = request.servletPath
+        println("🛡 JwtAuthFilter: обработка пути $path")
 
-        @Throws(ServletException::class, IOException::class)
-        override fun doFilterInternal(
-            request: HttpServletRequest,
-            response: HttpServletResponse,
-            filterChain: FilterChain
-        ) {
-            // 1️⃣ Публичные маршруты — пропускаем без проверки токена
-            val path = request.servletPath
-            if (path.startsWith("/api/auth/register") || path.startsWith("/api/auth/login")) {
-                filterChain.doFilter(request, response)
-                return
-            }
+        // Пропускаем публичные маршруты без проверки токена
+        if (path.startsWith("/api/auth/register") || path.startsWith("/api/auth/login")) {
+            println("➡ Публичный маршрут — пропуск без проверки токена")
+            filterChain.doFilter(request, response)
+            return
+        }
 
-            // 2️⃣ Читаем заголовок Authorization
-            val authHeader = request.getHeader("Authorization")
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                val token = authHeader.substring(7)
-                // 3️⃣ Извлекаем username из токена
+        val authHeader = request.getHeader("Authorization")
+        println("🔐 Authorization header: $authHeader")
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            val token = authHeader.substring(7)
+            println("🔑 JWT token: $token")
+
+            try {
                 val username = jwtUtil.getUsernameFromToken(token)
+                println("👤 Username из токена: $username")
 
-                // 4️⃣ Если пользователь ещё не аутентифицирован в контексте и username != null
                 if (username != null && SecurityContextHolder.getContext().authentication == null) {
-                    // Подгружаем из базы details
                     val userDetails = userDetailsService.loadUserByUsername(username)
+                    println("📦 UserDetails найден: ${userDetails.username}")
 
-                    // 5️⃣ Проверяем валидность токена
                     if (jwtUtil.validateToken(token)) {
-                        // 6️⃣ Создаём объект аутентификации и ставим в контекст
+                        println("✅ Токен валиден. Устанавливаем аутентификацию.")
                         val authToken = UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.authorities
                         )
                         authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
                         SecurityContextHolder.getContext().authentication = authToken
+                    } else {
+                        println("⛔ Токен недействителен")
                     }
                 }
+            } catch (ex: Exception) {
+                println("❌ Ошибка при обработке токена: ${ex.message}")
             }
-
-            // 7️⃣ Передаём управление дальше по цепочке
-            filterChain.doFilter(request, response)
+        } else {
+            println("⚠ Заголовок Authorization отсутствует или неверный")
         }
+
+        filterChain.doFilter(request, response)
     }
+}

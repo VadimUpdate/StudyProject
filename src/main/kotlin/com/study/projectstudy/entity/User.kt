@@ -4,15 +4,15 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "users")
+
 data class User(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0,
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,  // Уникальный идентификатор пользователя (автоинкремент)
+    val username: String,
 
-    @Column(unique = true, nullable = false)
-    val username: String,  // Имя пользователя (уникальное, не null)
+    val password: String,
 
-    @Column(nullable = false)
-    val password: String   // Хешированный пароль (не null)
+    // например, роли храним строкой с разделителем, можно и коллекцию, но проще пока так
+    val roles: String = "ROLE_USER"  // значение по умолчанию
 )
